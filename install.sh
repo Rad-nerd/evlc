@@ -70,6 +70,6 @@ echo "--- Installation Complete! ---"
 echo "$EVLC_COMMAND_NAME has been successfully installed to '$INSTALL_PATH'."
 echo "You can now use the command directly:"
 echo "  $EVLC_COMMAND_NAME status"
-echo "  $EVLC_COMMAND_NAME gif /path/to/your/file.gif"
+echo "  $EVLC_COMMAND_NAME -h"
 
 exit 0
