@@ -1,5 +1,3 @@
-  evlc: VLC Commander for the Homelab body { font-family: sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 20px auto; padding: 0 20px; } h1, h2, h3 { color: #0056b3; } code { font-family: monospace; background-color: #eee; padding: 2px 4px; border-radius: 4px; } pre { background-color: #f4f4f4; border: 1px solid #ddd; padding: 10px; border-radius: 5px; overflow-x: auto; } pre code { background-color: transparent; padding: 0; border-radius: 0; } ul { list-style-type: disc; margin-left: 20px; } strong { font-weight: bold; } em { font-style: italic; } hr { border: 0; height: 1px; background: #ddd; margin: 20px 0; } a { color: #007bff; text-decoration: none; } a:hover { text-decoration: underline; }
-
 evlc: VLC Commander for the Homelab
 ===================================
 
