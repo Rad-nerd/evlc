@@ -44,7 +44,7 @@ The easiest way to install `evlc` system-wide (to `/usr/local/bin/`) is using th
 
 For a super fast installation, you can directly execute the `install.sh` script from GitHub:
 
-    sudo curl -s https://example.com/script.sh | bash"
+    sudo curl -s https://example.com/script.sh | bash
     
 
 _This command downloads the `install.sh` script from the `main` branch of the `Rad-nerd/evlc` repository and pipes it directly to `bash` for execution, using `sudo` to allow system-wide installation. No cloning needed!_
