@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EVLC Web</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+    
+    <style>
+        /* CSS embedded directly in HTML */
+
+        /* General Body and Container Theme (Dark, appliance-like) */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Centers items horizontally */
+            justify-content: center; /* Centers items vertically */
+            min-height: 90vh; /* Increased min-height for more vertical centering */
+            margin: 0;
+            background-color: #1a1a1a; /* Very dark gray, almost black */
+            color: #e0e0e0; /* Light gray text for contrast */
+            font-size: 1.05em; /* Slightly increased base font size */
+        }
+
+        .container {
+            background-color: #2c2c2c; /* Slightly lighter dark gray for container */
+            padding: 40px 50px; /* Increased padding for more space */
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.6); /* Deeper shadow */
+            text-align: center;
+            border: 1px solid #444444; /* Subtle border for appliance look */
+            max-width: 500px; /* Constrain max width for better centering on large screens */
+            width: 90%; /* Responsive width */
+            box-sizing: border-box; /* Include padding/border in width */
+        }
+
+        /* Metal/Appliance texture */
+        .appliance:before{
+            background-image: linear-gradient(#fff, #fff);
+            background-size: 1px 100%;
+            background-repeat: no-repeat;
+            background-position: center center;
+        }
+        .appliance {
+            background-image: 	-webkit-repeating-linear-gradient(left, hsla(-1,0%,20%,0) 0%, hsla(0,0%,100%,0)   6%, hsla(0,0%,20%, .1) 7.5%, hsla(0,0%, 20%,0) 9%),
+                            -webkit-repeating-linear-gradient(left, hsla(-1,0%,  0%,0) 0%, hsla(0,0%,  0%,0)   4%, hsla(0,0%,  0%,.03) 4.5%, hsla(0,0%,  0%,0) 6%),
+                            -webkit-repeating-linear-gradient(left, hsla(-1,0%,20%,0) 0%, hsla(0,0%,20%,0) 1.2%, hsla(0,0%,20%,.15) 2.2%, hsla(0,0%,20%,0) 4%),
+                            -webkit-linear-gradient(-90deg, hsl(0,0%,10%)  0%, hsl(0,0%,10%) 47%, hsl(0,0%,10%) 53%, hsl(0,0%,10%) 100%),
+                            linear-gradient(180deg, hsl(0,0%,78%)  0%,
+                            hsl(0,0%,90%) 47%,
+                            hsl(0,0%,78%) 53%,
+                            hsl(0,0%,70%)100%);
+            /* Adding subtle texture to the container itself if you add this class */
+            background-size: cover; /* Adjust as needed */
+            background-blend-mode: overlay;
+            background-repeat: no-repeat;
+        }
+
+        h1 {
+            color: #00FF00; /* Bright lime green for main heading, matches button */
+            margin-bottom: 30px; /* More space below heading */
+            text-shadow: 0 0 10px rgba(0,255,0,0.6); /* Slightly stronger glow */
+            font-size: 3em; /* Made main title bigger */
+        }
+
+        .control-group {
+            margin-bottom: 25px; /* More space between groups */
+            border: 1px solid #555555; /* Lighter border for groups */
+            padding: 20px; /* Increased padding */
+            border-radius: 8px;
+            background-color: #383838; /* Slightly darker gray for groups */
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.3); /* Inner shadow for depth */
+        }
+        .control-group h3 {
+            color: #ffffff; /* White text for subheadings */
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.6em; /* Made section titles bigger */
+        }
+
+        /* Button Styling (Consistent with your previous vibrant colors) */
+        .control-group button {
+            border: none;
+            padding: 15px 30px; /* Increased padding for bigger buttons */
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.3em; /* Made button text/symbols bigger */
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            margin: 5px;
+            font-weight: bold; /* Make button text bold */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3); /* Shadow for lift */
+        }
+        .control-group button:hover {
+            transform: translateY(-2px); /* Slight lift on hover */
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+        .control-group button:active {
+            transform: translateY(0); /* Press effect */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* Specific button colors */
+        .upload-section button {
+            background-color: #2beaaf; /* New color for Play */
+            color: #000000; /* Black text for high contrast */
+        }
+        .upload-section button:hover {
+            background-color: #22c194; /* Darker shade on hover */
+        }
+
+        .stop-section button {
+            background-color: #2398f8; /* New color for Stop */
+            color: #ffffff; /* White text on blue */
+        }
+        .stop-section button:hover {
+            background-color: #1a7acb; /* Darker shade on hover */
+        }
+
+        /* Input styling */
+        input[type="file"] {
+            margin: 10px auto; /* Centered horizontally */
+            padding: 12px; /* Increased padding */
+            border: 1px solid #888888;
+            border-radius: 5px;
+            background-color: #222222;
+            color: #ffffff;
+            width: calc(100% - 24px); /* Adjusted width for padding */
+            max-width: 350px; /* Slightly increased max width */
+            box-sizing: border-box; /* Include padding/border in width */
+            display: block; /* Ensures it takes up full width for centering */
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #ffffff;
+            font-size: 1.1em; /* Made labels bigger */
+        }
+        hr {
+            border: 0;
+            border-top: 1px solid #555555;
+            margin: 30px 0;
+            width: 80%;
+        }
+        /* Logo image styling */
+        .logo-display {
+            width: 120px; /* Made logo a bit bigger */
+            height: 120px; /* Made logo a bit bigger */
+            margin-bottom: 25px; /* More space below logo */
+            filter: drop-shadow(0 0 10px rgba(0,255,0,0.7)); /* Stronger green glow */
+        }
+
+        /* Flash message styling (if flash messages are implemented in app.py) */
+        .flashes {
+            list-style-type: none;
+            padding: 10px;
+            margin: 20px auto;
+            background-color: #4CAF50; /* Green background for success */
+            color: white;
+            border-radius: 5px;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .flashes li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container appliance">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <ul class="flashes">
+            {% for message in messages %}
+              <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="EVLC Web Logo" class="logo-display">
+        
+
+        <div class="control-group upload-section">
+            <h3>Play</h3> <form action="/upload_and_play" method="post" enctype="multipart/form-data">
+                <label for="uploaded_file">Choose Media File:</label>
+                <input type="file" name="uploaded_file" id="uploaded_file" 
+                       accept=".mp4,.avi,.mkv,.gif,.jpg,.jpeg,.png,.webp" required>
+                <br><br>
+                <button type="submit">▶</button>
+            </form>
+        </div>
+
+        <hr>
+
+        <div class="control-group stop-section">
+            <form action="/command/stop" method="post">
+                <h3>Stop All VLC</h3>
+                <button type="submit">❚❚</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
