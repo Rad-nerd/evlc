@@ -78,27 +78,29 @@ The `install.sh` script will handle checking for prerequisites, downloading the 
 
 Once installed, you can simply run `evlc` from any terminal.
 
+**Important Note:** Many `evlc` commands, especially those that manage system processes (like VLC or the web server) or write to system-level log/PID files, require elevated privileges. Therefore, it's often necessary to prefix your `evlc` commands with `sudo`.
+
 ### Play Media:
 
 Specify the media format (`gif`, `photo`, or `video`) followed by the file path. `evlc` will automatically run `cvlc` in the background and detach it from your terminal.
 
 * **Play a GIF:**
     
-        evlc gif /path/to/your/awesome_animation.gif
+        sudo evlc gif /path/to/your/awesome_animation.gif
         
     
     *(Uses `cvlc` flags like `--demux=avformat --loop --no-osd --aspect-ratio 4:3 --crop=16:9`)*
     
 * **Display a Photo:**
     
-        evlc photo /path/to/your/background_image.jpg
+        sudo evlc photo /path/to/your/background_image.jpg
         
     
     *(Uses `cvlc` flags like `--play-and-pause --no-osd`)*
     
 * **Play a Video:**
     
-        evlc video /path/to/your/looping_video.mp4
+        sudo evlc video /path/to/your/looping_video.mp4
         
     
     *(Uses `cvlc` flags like `--loop --no-osd`)*
@@ -108,14 +110,14 @@ Specify the media format (`gif`, `photo`, or `video`) followed by the file path.
 
 To forcefully terminate all running `vlc` processes (any started by `evlc` or manually):
 
-    evlc stop
+    sudo evlc stop
     
 
 ### Check VLC Status:
 
 To quickly see if any `vlc` processes are currently running on your system:
 
-    evlc status
+    sudo evlc status
     
 
 ### Web Server Management:
@@ -124,19 +126,19 @@ The `evlc` script can also manage the Flask web interface, allowing you to start
 
 * **Start the Web Server:**
     ```bash
-    evlc server start
+    sudo evlc server start
     ```
     *(This will start the Flask application in the background, logging output to `/var/lib/evlcweb/evlcweb.log` and storing its PID in `/var/lib/evlcweb/evlcweb.pid`.)*
 
 * **Stop the Web Server:**
     ```bash
-    evlc server stop
+    sudo evlc server stop
     ```
     *(This will attempt to gracefully stop the running web server process.)*
 
 * **Check Web Server Status:**
     ```bash
-    evlc server status
+    sudo evlc server status
     ```
     *(See if the web server is currently running and its PID.)*
 
@@ -144,8 +146,8 @@ The `evlc` script can also manage the Flask web interface, allowing you to start
 
 For more detailed output during execution, including the exact `cvlc` command being run or verbose status messages, simply add the `--debug` flag:
 
-    evlc video /path/to/test_video.mp4 --debug
-    evlc status --debug
+    sudo evlc video /path/to/test_video.mp4 --debug
+    sudo evlc status --debug
     
 
 * * *
