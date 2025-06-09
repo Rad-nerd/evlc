@@ -11,6 +11,11 @@ DEBUG_MODE = False
 # Global variable to keep track of the VLC process
 vlc_process = None
 
+# --- NEW GLOBAL CONSTANTS FOR WEB SERVER MANAGEMENT ---
+WEB_APP_PATH = "/var/lib/evlcweb/app.py"
+WEB_APP_LOG = "/var/lib/evlcweb/evlcweb.log"
+WEB_APP_PID_FILE = "/var/lib/evlcweb/evlcweb.pid"
+
 def debug_print(message):
     """Prints a message only if DEBUG_MODE is True."""
     if DEBUG_MODE:
@@ -140,35 +145,154 @@ def get_vlc_status():
         except Exception:
             print("VLC status: Unable to determine (pgrep error).")
 
+# --- NEW FUNCTIONS FOR WEB SERVER MANAGEMENT ---
+
+def start_web_server():
+    debug_print("\n--- Starting Web Server ---")
+    if os.path.exists(WEB_APP_PID_FILE):
+        try:
+            with open(WEB_APP_PID_FILE, 'r') as f:
+                pid = int(f.read().strip())
+            # Check if the process is actually running
+            if os.path.exists(f"/proc/{pid}"): # Check /proc for existence of PID
+                print(f"Web server appears to be already running with PID {pid}. Stop it first if you want to restart.")
+                return
+            else:
+                debug_print(f"Stale PID file found ({WEB_APP_PID_FILE}), removing.")
+                os.remove(WEB_APP_PID_FILE)
+        except (ValueError, FileNotFoundError):
+            debug_print("PID file exists but is invalid or unreadable, will attempt to overwrite.")
+            if os.path.exists(WEB_APP_PID_FILE):
+                os.remove(WEB_APP_PID_FILE)
+    
+    # Ensure log directory exists (if WEB_APP_LOG path is different from WEB_APP_PATH's directory)
+    log_dir = os.path.dirname(WEB_APP_LOG)
+    if not os.path.exists(log_dir):
+        try:
+            os.makedirs(log_dir, exist_ok=True)
+        except OSError as e:
+            print(f"Error: Could not create log directory {log_dir}: {e}")
+            return
+
+    # Construct the nohup command to start the Flask app in the background, redirect output, and store PID
+    # `echo $!` captures the PID of the last backgrounded process
+    command = f"nohup python3 {WEB_APP_PATH} > {WEB_APP_LOG} 2>&1 & echo $! > {WEB_APP_PID_FILE}"
+    debug_print(f"Executing command: {command}")
+    
+    try:
+        # Use subprocess.run with shell=True to execute the combined nohup command
+        # This handles backgrounding and PID file creation in one go
+        subprocess.run(command, shell=True, check=True, text=True, capture_output=True)
+        
+        # Give a moment for the PID to be written by the shell command
+        time.sleep(1) 
+        if os.path.exists(WEB_APP_PID_FILE):
+            with open(WEB_APP_PID_FILE, 'r') as f:
+                pid = int(f.read().strip())
+            print(f"Web server started with PID {pid}. Log file: {WEB_APP_LOG}")
+        else:
+            print("Web server started, but PID file was not created. Check logs for errors.")
+
+    except FileNotFoundError:
+        print("Error: 'python3' or 'nohup' command not found. Ensure they are in your PATH.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error starting web server: {e}")
+        debug_print(f"Command stderr: {e.stderr}")
+    except Exception as e:
+        print(f"An unexpected error occurred while trying to start the web server: {e}")
+
+def stop_web_server():
+    debug_print("\n--- Stopping Web Server ---")
+    if not os.path.exists(WEB_APP_PID_FILE):
+        print("Web server PID file not found. Is the server running?")
+        return
+
+    try:
+        with open(WEB_APP_PID_FILE, 'r') as f:
+            pid = int(f.read().strip())
+    except (ValueError, FileNotFoundError):
+        print(f"Could not read PID from {WEB_APP_PID_FILE}. It might be corrupted or missing.")
+        if os.path.exists(WEB_APP_PID_FILE):
+            os.remove(WEB_APP_PID_FILE)
+        return
+
+    if not os.path.exists(f"/proc/{pid}"): # Check if process exists in /proc filesystem
+        print(f"No web server process found with PID {pid}. Stale PID file removed.")
+        os.remove(WEB_APP_PID_FILE)
+        return
+
+    print(f"Attempting to stop web server with PID {pid}...")
+    try:
+        os.kill(pid, signal.SIGTERM) # Send graceful termination signal
+        time.sleep(2) # Give it a moment to shut down
+        if not os.path.exists(f"/proc/{pid}"):
+            print("Web server stopped successfully.")
+            os.remove(WEB_APP_PID_FILE)
+        else:
+            print(f"Web server process (PID {pid}) still running after SIGTERM. Attempting SIGKILL (forceful stop)...")
+            os.kill(pid, signal.SIGKILL) # Forceful kill
+            time.sleep(1)
+            if not os.path.exists(f"/proc/{pid}"):
+                print("Web server forcefully stopped.")
+                os.remove(WEB_APP_PID_FILE)
+            else:
+                print("Failed to stop web server.")
+    except ProcessLookupError:
+        print(f"No web server process found with PID {pid}. It might have already terminated.")
+        os.remove(WEB_APP_PID_FILE)
+    except PermissionError:
+        print(f"Permission denied to kill PID {pid}. Make sure you have the necessary privileges (e.g., run with sudo).")
+    except Exception as e:
+        print(f"An unexpected error occurred while trying to stop the web server: {e}")
+
+def get_web_server_status():
+    debug_print("\n--- Checking Web Server Status ---")
+    if not os.path.exists(WEB_APP_PID_FILE):
+        print("Web server status: Not running (PID file not found).")
+        return
+
+    try:
+        with open(WEB_APP_PID_FILE, 'r') as f:
+            pid = int(f.read().strip())
+    except (ValueError, FileNotFoundError):
+        print(f"Web server status: Unknown (PID file '{WEB_APP_PID_FILE}' is corrupted or unreadable). Removing it.")
+        if os.path.exists(WEB_APP_PID_FILE):
+            os.remove(WEB_APP_PID_FILE)
+        return
+
+    if os.path.exists(f"/proc/{pid}"):
+        print(f"Web server status: Running with PID {pid}.")
+    else:
+        print(f"Web server status: Not running (Stale PID file found, PID {pid} does not exist). Removing stale PID file.")
+        os.remove(WEB_APP_PID_FILE)
+
 
 def main():
     global DEBUG_MODE # Declare global here to modify it
 
     parser = argparse.ArgumentParser(
-        description="Control `cvlc` with simplified commands. Use 'stop' or 'status' as commands, "
-                    "or specify format directly for playback.",
+        description="Control `cvlc` and the EVLC web server with simplified commands.",
         formatter_class=argparse.RawTextHelpFormatter
     )
 
     parser.add_argument(
-        'action_or_format',
-        help='Media format ("gif", "photo", "video") to play, or a command ("stop", "status").'
+        'action_or_command', # Renamed to be more generic for 'server' subcommand
+        help='Media format ("gif", "photo", "video") to play, or a command ("stop", "status", "server").'
     )
 
     parser.add_argument(
-        'file',
+        'subcommand_arg', # Renamed from 'file' to be more generic
         nargs='?',
         type=str,
-        help='Path to the media file. Required when playing media.'
+        help='Path to the media file (for playback), or a server action ("start", "stop", "status").'
     )
 
     parser.add_argument(
         '--dry-run',
         action='store_true',
-        help='For play commands: print the cvlc command but do not execute it.'
+        help='For media playback commands: print the cvlc command but do not execute it.'
     )
 
-    # --- IMPORTANT CHANGE HERE: Added --debug argument ---
     parser.add_argument(
         '--debug',
         action='store_true',
@@ -181,9 +305,9 @@ def main():
     DEBUG_MODE = args.debug
 
     # Determine action based on the first argument
-    if args.action_or_format in ['gif', 'photo', 'video']:
-        media_format = args.action_or_format
-        media_file = args.file
+    if args.action_or_command in ['gif', 'photo', 'video']:
+        media_format = args.action_or_command
+        media_file = args.subcommand_arg # Use the new argument name
 
         if not media_file:
             parser.error(f"Error: A file path is required when specifying the format '{media_format}'. "
@@ -191,21 +315,43 @@ def main():
         
         start_vlc(media_file, media_format, args.dry_run)
 
-    elif args.action_or_format == 'stop':
-        if args.file or args.dry_run: # --dry-run is for play command only
-            parser.error("Error: 'stop' command does not take a file path or --dry-run. "
+    elif args.action_or_command == 'stop':
+        # This 'stop' is for VLC processes
+        if args.subcommand_arg or args.dry_run: # --dry-run is for play command only
+            parser.error("Error: 'stop' command (for VLC) does not take a file path or --dry-run. "
                          "Usage: evlc stop")
         stop_vlc_process()
 
-    elif args.action_or_format == 'status':
-        if args.file or args.dry_run: # --dry-run is for play command only
-            parser.error("Error: 'status' command does not take a file path or --dry-run. "
+    elif args.action_or_command == 'status':
+        # This 'status' is for VLC processes
+        if args.subcommand_arg or args.dry_run: # --dry-run is for play command only
+            parser.error("Error: 'status' command (for VLC) does not take a file path or --dry-run. "
                          "Usage: evlc status")
         get_vlc_status()
+    
+    # --- NEW SERVER COMMAND LOGIC ---
+    elif args.action_or_command == 'server':
+        server_action = args.subcommand_arg # This holds "start", "stop", or "status" for the server
+
+        if not server_action:
+            parser.error("Error: 'server' command requires a subcommand: 'start', 'stop', or 'status'. "
+                         "Usage: evlc server <start|stop|status>")
+        
+        if args.dry_run: # Server commands do not support dry-run
+            parser.error(f"Error: 'server {server_action}' does not support --dry-run.")
+
+        if server_action == 'start':
+            start_web_server()
+        elif server_action == 'stop':
+            stop_web_server()
+        elif server_action == 'status':
+            get_web_server_status()
+        else:
+            parser.error(f"Error: Unrecognized server action: '{server_action}'. Expected 'start', 'stop', or 'status'.")
 
     else:
-        parser.error(f"Error: Unrecognized command or media format: '{args.action_or_format}'. "
-                     "Expected 'gif', 'photo', 'video', 'stop', or 'status'.")
+        parser.error(f"Error: Unrecognized command or action: '{args.action_or_command}'. "
+                     "Expected 'gif', 'photo', 'video', 'stop', 'status', or 'server'.")
 
 if __name__ == "__main__":
     main()
