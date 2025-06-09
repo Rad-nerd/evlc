@@ -1,6 +1,9 @@
 evlc: VLC Commander for the Homelab
 ===================================
 
+![
+](https://raw.githubusercontent.com/Rad-nerd/evlc/refs/heads/main/logo.png)
+
 A concise python based command-line tool to simplify controlling VLC (via `cvlc`) for displaying media on dedicated monitors or homelab screens. Perfect for quickly showing GIFs, photos, or videos with tailored VLC settings, and managing VLC processes with ease.
 
 * * *
