@@ -49,7 +49,7 @@ The easiest way to install `evlc` system-wide (to `/usr/local/bin/`) **and its w
 
 For a super fast installation, you can directly execute the `install.sh` script from GitHub:
 
-    sudo curl -s https://raw.githubusercontent.com/Rad-nerd/evlc/main/install.sh | bash
+    sudo curl -s https://raw.githubusercontent.com/Rad-nerd/evlc/main/install.sh | sudo bash
     
 
 _This command downloads the `install.sh` script from the `main` branch of the `Rad-nerd/evlc` repository and pipes it directly to `bash` for execution, using `sudo` to allow system-wide installation. No cloning needed!_
@@ -82,7 +82,7 @@ You can easily uninstall `evlc` and its components using the provided `uninstall
 
 To quickly uninstall `evlc` and its web interface components:
 
-    sudo curl -s https://raw.githubusercontent.com/Rad-nerd/evlc/refs/heads/main/uninstall.sh | bash
+    sudo curl -s https://raw.githubusercontent.com/Rad-nerd/evlc/refs/heads/main/uninstall.sh | sudo bash
 
 _This command downloads and executes the `uninstall.sh` script from the `main` branch, which will remove `evlc` from `/usr/local/bin/` and the web interface from `/var/lib/evlcweb/`._
 
