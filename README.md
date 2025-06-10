@@ -73,6 +73,21 @@ The `install.sh` script will handle checking for prerequisites, downloading the 
 
 * * *
 
+🗑️ Uninstallation
+-----------------
+
+You can easily uninstall `evlc` and its components using the provided `uninstall.sh` script.
+
+### Quick Uninstall (One-Liner)
+
+To quickly uninstall `evlc` and its web interface components:
+
+    sudo curl -s https://raw.githubusercontent.com/Rad-nerd/evlc/refs/heads/main/uninstall.sh | bash
+
+_This command downloads and executes the `uninstall.sh` script from the `main` branch, which will remove `evlc` from `/usr/local/bin/` and the web interface from `/var/lib/evlcweb/`._
+
+* * *
+
 💡 Usage
 --------
 
