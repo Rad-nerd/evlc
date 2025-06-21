@@ -1,0 +1,1 @@
+This is a patch for evlc web that gives it playlist support replace the contents of evlc-web folder in /var/lib/evlcweb/ with the things in this folder
